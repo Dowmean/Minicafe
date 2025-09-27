@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>สรุปยอดขาย</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9f6f1;
+            margin: 0; 
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #5a3e1b;
+            margin-bottom: 30px;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .card {
+            flex: 1;
+            background: linear-gradient(135deg, #FFF0D7, #f9f6f1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin: 0 0 10px;
+            color: #5a3e1b;
+            font-size: 20px;
+        }
+        .card p {
+            margin: 5px 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: #d35400;
+        }
+        .card small {
+            display: block;
+            margin-top: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        .chart-container {
+            margin-top: 50px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 สรุปยอดขาย</h1>
+
+    <!-- แสดงยอดรวม -->
+    <div class="summary">
+        <div class="card">
+            <h3>รายวัน</h3>
+            <p th:text="${dailyReport.total} + ' บาท'">0 บาท</p>
+            <small>
+                <span th:text="${dailyReport.startDate}"></span> - 
+                <span th:text="${dailyReport.endDate}"></span>
+            </small>
+        </div>
+        <div class="card">
+            <h3>รายสัปดาห์</h3>
+            <p th:text="${weeklyReport.total} + ' บาท'">0 บาท</p>
+            <small>
+                <span th:text="${weeklyReport.startDate}"></span> - 
+                <span th:text="${weeklyReport.endDate}"></span>
+            </small>
+        </div>
+        <div class="card">
+            <h3>รายเดือน</h3>
+            <p th:text="${monthlyReport.total} + ' บาท'">0 บาท</p>
+            <small>
+                <span th:text="${monthlyReport.startDate}"></span> - 
+                <span th:text="${monthlyReport.endDate}"></span>
+            </small>
+        </div>
+    </div>
+
+    <!-- กราฟ -->
+    <div class="chart-container">
+        <canvas id="salesChart"></canvas>
+    </div>
+</div>
+
+<!-- Chart.js + Thymeleaf inline -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+    const daily   = [[${dailyReport.total} ?: 0]];
+    const weekly  = [[${weeklyReport.total} ?: 0]];
+    const monthly = [[${monthlyReport.total} ?: 0]];
+
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['รายวัน', 'รายสัปดาห์', 'รายเดือน'],
+            datasets: [{
+                label: 'ยอดขาย (บาท)',
+                data: [daily, weekly, monthly],
+                backgroundColor: ['#27ae60', '#2980b9', '#f39c12'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.raw + ' บาท';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: function(value) { return value + ' บาท'; } }
+                }
+            }
+        }
+    });
+/*]]>*/
+</script>
+
+</body>
+</html>

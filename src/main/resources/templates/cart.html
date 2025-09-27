@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ตะกร้า / ประวัติออเดอร์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Content -->
+    <div class="max-w-5xl mx-auto px-6 py-8">
+        <h2 class="text-2xl font-bold text-center mb-6">ประวัติออเดอร์ของคุณ</h2>
+
+        <!-- ถ้าไม่มีออเดอร์ -->
+        <div th:if="${#lists.isEmpty(orders)}" class="text-center text-gray-500">
+            <p>ยังไม่มีออเดอร์</p>
+        </div>
+
+        <!-- แสดงออเดอร์ -->
+        <div th:each="order : ${orders}" class="mb-6 bg-white shadow-md rounded-lg p-6">
+            <div class="flex justify-between items-center border-b pb-2 mb-4">
+                <h3 class="text-lg font-semibold">
+                    ออเดอร์ #<span th:text="${order.id}"></span>
+                </h3>
+                <!-- Badge ของสถานะ -->
+                <span class="text-sm px-3 py-1 rounded-full"
+                      th:classappend="${order.status} == 'Pending' ? 'bg-yellow-200 text-yellow-800' :
+                                      (${order.status} == 'In Progress' ? 'bg-blue-200 text-blue-800' :
+                                      'bg-green-200 text-green-800')"
+                      th:text="${order.status}">
+                </span>
+            </div>
+
+            <!-- รายการเมนู -->
+            <div th:each="item : ${order.items}" class="flex items-center justify-between border-b py-3">
+                <div class="flex items-center space-x-4">
+                    <!-- รูปเมนู -->
+                    <img th:src="@{'/images/' + ${#strings.replace(item.flavor.toLowerCase(), ' ', '_')} + '.jpg'}"
+                         alt="[[${item.flavor}]]"
+                         class="w-16 h-16 rounded-lg object-cover"
+                         onerror="this.src='/images/placeholder.jpg'">
+
+                    <!-- ข้อมูลเมนู -->
+                    <div>
+                        <p class="font-semibold text-gray-800"
+                           th:text="${item.flavor}">Latte</p>
+                        <p class="text-sm text-gray-600"
+                           th:text="'แบบ: ' + ${item.option} + ' | หวาน ' + ${item.sweetness} + '%'">
+                           เย็น | หวาน 50%
+                        </p>
+                    </div>
+                </div>
+                <!-- ราคา -->
+                <p class="text-[#CC6600] font-bold text-lg" th:text="${item.price + ' บาท'}">40 บาท</p>
+            </div>
+
+            <!-- ราคารวม -->
+            <p class="text-right font-bold text-lg mt-4">รวมทั้งหมด:
+                <span class="text-green-600" th:text="${order.total + ' บาท'}"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- ปุ่มกลับไปเมนู -->
+    <div class="text-center my-6">
+        <a href="/" class="px-6 py-2 bg-[#CD853F] text-white font-semibold rounded-lg hover:bg-[#A67C52] transition">
+            ← กลับไปสั่งเพิ่ม
+        </a>
+    </div>
+
+</body>
+</html>

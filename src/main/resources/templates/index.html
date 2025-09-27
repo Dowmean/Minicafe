@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เมนูเครื่องดื่ม</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Navbar -->
+    <div class="flex justify-between items-center p-4 bg-[#DEB887] shadow-md">
+        <div class="flex items-center space-x-4">
+            <a href="/">
+                <img src="/images/logo.jpg" alt="Cafe Logo" class="w-14 h-14 rounded-full object-contain cursor-pointer">
+            </a>
+            <div class="text-2xl text-white font-bold">MiniCafe</div>
+        </div>
+        <div class="flex space-x-6 text-white font-medium">
+            <a href="/orders" class="hover:text-gray-200">รายการออเดอร์</a>
+            <a href="/cart" class="hover:text-gray-200">ตะกร้า</a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-7xl mx-auto px-8 py-8">
+        <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">เมนูเครื่องดื่ม</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 mt-6">
+            <div th:each="recipe : ${menuRecipes.values()}"
+                 class="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+
+                <!-- รูป -->
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <img th:src="@{'/images/' + ${#strings.replace(recipe.flavor.toLowerCase(), ' ', '_')} + '.jpg'}"
+                         alt="[[${recipe.flavor}]]"
+                         class="w-full h-48 object-cover"
+                         onerror="this.src='/images/placeholder.jpg'">
+                </div>
+
+                <!-- เนื้อหา -->
+                <div class="p-5">
+                    <h2 class="text-lg font-semibold text-gray-800"
+                        th:text="${recipe.flavor}">Latte</h2>
+                    <p class="text-md mt-2 text-[#CC6600]"
+                        th:text="${recipe.price + ' บาท'}">40 บาท</p>
+                </div>
+
+                <!-- ปุ่ม เปิด Modal -->
+                <button type="button"
+                        class="fab absolute bottom-5 right-5"
+                        th:attr="onclick=|openModal('${recipe.flavor}', ${recipe.price})|">
+                    <i class="material-icons">add</i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h2 class="text-xl font-bold mb-4">เลือกตัวเลือกเพิ่มเติม</h2>
+
+            <form method="post" action="/cart" id="modalForm">
+                <input type="hidden" name="flavor" id="modalFlavor">
+                <input type="hidden" id="basePrice">
+
+                <label class="block mb-2">เลือกแบบ:</label>
+                <select name="option" id="optionSelect" class="w-full border rounded p-2 mb-4">
+                    <option value="ร้อน">ร้อน</option>
+                    <option value="เย็น">เย็น</option>
+                </select>
+
+                <label class="block mb-2">ความหวาน:</label>
+                <select name="sweetness" class="w-full border rounded p-2 mb-4">
+                    <option value="25">25%</option>
+                    <option value="50">50%</option>
+                    <option value="75">75%</option>
+                    <option value="100">100%</option>
+                </select>
+
+                <p class="text-lg font-semibold mb-4">ราคา: <span id="priceDisplay">-</span></p>
+
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">ยกเลิก</button>
+                    <button type="submit"
+                            class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">เพิ่มในตะกร้า</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ปุ่มตะกร้า -->
+    <a href="/cart" class="cart-btn">
+        <i class="material-icons">shopping_cart</i>
+    </a>
+
+    <style>
+        .fab {
+            background-color: #CD853F;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .fab:hover { background-color: #A67C52; }
+        .cart-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #CD853F;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .cart-btn:hover { background-color: #A67C52; }
+        .cart-btn i { font-size: 36px; }
+    </style>
+
+    <script>
+        function openModal(flavor, basePrice) {
+            document.getElementById("modalFlavor").value = flavor;
+            document.getElementById("basePrice").value = basePrice;
+            document.getElementById("priceDisplay").innerText = basePrice + " บาท";
+            document.getElementById("orderModal").classList.remove("hidden");
+
+            document.getElementById("optionSelect").value = "ร้อน";
+        }
+        function closeModal() {
+            document.getElementById("orderModal").classList.add("hidden");
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const optionSelect = document.getElementById("optionSelect");
+            optionSelect.addEventListener("change", function () {
+                const basePrice = parseInt(document.getElementById("basePrice").value);
+                let price = basePrice;
+                if (this.value === "เย็น") price += 5;
+                document.getElementById("priceDisplay").innerText = price + " บาท";
+            });
+        });
+    </script>
+
+</body>
+</html>

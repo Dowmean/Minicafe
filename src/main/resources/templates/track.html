@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>ติดตามสถานะ</title></head>
+<body>
+<h2>ติดตามสถานะออเดอร์</h2>
+
+<div th:if="${order != null}">
+    <h3>Order #<span th:text="${order.id}"></span></h3>
+    <ul>
+        <li th:each="item : ${order.items}" th:text="${item}"></li>
+    </ul>
+    <p>สถานะ: <b th:text="${order.status}"></b></p>
+</div>
+
+<div th:if="${order == null}">
+    <p>ไม่พบออเดอร์นี้</p>
+</div>
+
+<a href="/">กลับไปหน้าเมนู</a>
+</body>
+</html>

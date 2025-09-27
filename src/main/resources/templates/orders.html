@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>รายการออเดอร์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold mb-6 text-center text-[#8B4513]">รายการออเดอร์</h2>
+
+        <!-- ไม่มีออเดอร์ -->
+        <div th:if="${#lists.isEmpty(orders)}" class="text-center text-gray-600">
+            ยังไม่มีออเดอร์
+        </div>
+
+        <!-- ลิสต์ออเดอร์ -->
+        <div th:each="order : ${orders}" class="bg-white shadow-md rounded-lg p-6 mb-6 border border-[#DEB887]">
+            
+            <!-- Header Order -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    ออเดอร์ #<span th:text="${order.id}"></span>
+                </h3>
+                <span class="px-3 py-1 rounded-full text-sm font-medium"
+                      th:classappend="${order.status == 'Pending'} ? 'bg-yellow-200 text-yellow-800' :
+                                      (${order.status == 'In Progress'} ? 'bg-blue-200 text-blue-800' :
+                                      'bg-green-200 text-green-800')"
+                      th:text="${order.status}">
+                </span>
+            </div>
+
+            <!-- Table ของ Item -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-[#DEB887] text-white">
+                            <th class="py-2 px-4">เมนู</th>
+                            <th class="py-2 px-4">ราคา</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${order.items}" class="border-b">
+                            <td class="py-2 px-4 flex items-center space-x-3">
+                                <!-- รูปเมนู -->
+                                <img th:src="@{'/images/' + ${#strings.replace(item.flavor.toLowerCase(), ' ', '_')} + '.jpg'}"
+                                     alt="[[${item.flavor}]]"
+                                     class="w-14 h-14 rounded-lg object-cover"
+                                     onerror="this.src='/images/placeholder.jpg'">
+                                
+                                <!-- ข้อมูลเมนู -->
+                                <span th:text="${item.flavor + ' (' + item.option + ', หวาน ' + item.sweetness + '%)'}">
+                                    Latte (เย็น, หวาน 50%)
+                                </span>
+                            </td>
+                            <td class="py-2 px-4 text-[#CC6600] font-semibold" 
+                                th:text="${item.price + ' บาท'}">40 บาท
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total + Update -->
+            <div class="flex justify-between items-center mt-4">
+                <p class="text-lg font-bold">
+                    รวมทั้งหมด: <span class="text-green-600" th:text="${order.total + ' บาท'}">100 บาท</span>
+                </p>
+
+                <form th:action="@{/orders/{id}/next(id=${order.id})}" method="post">
+                    <button type="submit" 
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow">
+                        เปลี่ยนสถานะ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
